@@ -8,7 +8,7 @@ using System;
 using uMini.Web.Data;
 
 namespace uMini.Web.Data.Migrations;
-[DbContext(typeof(ApplicationDbContext))]
+[DbContext(typeof(ApplicationIdentityDbContext))]
 [Migration("00000000000000_CreateIdentitySchema")]
 partial class CreateIdentitySchema
 {
