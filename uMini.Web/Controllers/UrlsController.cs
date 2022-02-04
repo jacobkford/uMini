@@ -20,4 +20,21 @@ public class UrlsController : Controller
 
         return View(urls);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(CreateShortUrlViewModel request)
+    {
+        var newShortUrl = new ShortUrl
+        {
+            Key = request.Key,
+            Url = request.Url,
+            CreatorId = request.CreatorId,
+        };
+
+        await _shortUrlRepository.Add(newShortUrl);
+        await _shortUrlRepository.Save();
+
+        return RedirectToAction("Manage");
+    }
 }
