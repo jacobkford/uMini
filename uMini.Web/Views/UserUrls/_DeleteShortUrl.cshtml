@@ -2,10 +2,10 @@
 
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=@($"#delete{Model.Key}Modal")>Delete</button>
 
-<div class="modal fade" id=@($"delete{Model.Key}Modal") tabindex="-1" role="dialog" aria-labelledby=@($"edit{Model.Key}ModalLabel") aria-hidden="true">
+<div class="modal fade" id=@($"delete{Model.Key}Modal") tabindex="-1" role="dialog" aria-labelledby=@($"delete{Model.Key}ModalLabel") aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form method="post" asp-action="Delete" asp-controller="Urls">
+            <form method="post" asp-action="Delete" asp-controller="UserUrls">
                 <div class="model-body">
                     <input name="key" type="hidden" value=@Model.Key />
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -1,18 +1,19 @@
 ﻿namespace uMini.Web.Controllers;
 
 [Authorize]
-public class UrlsController : Controller
+[Route("my/urls/{action=Index}")]
+public class UserUrlsController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
 
-    public UrlsController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository)
+    public UserUrlsController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository)
     {
         _logger = logger;
         _shortUrlRepository = shortUrlRepository;
     }
 
-    public async Task<IActionResult> Manage()
+    public async Task<IActionResult> Index()
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier);
 
@@ -35,7 +36,7 @@ public class UrlsController : Controller
         await _shortUrlRepository.Add(newShortUrl);
         await _shortUrlRepository.Save();
 
-        return RedirectToAction("Manage");
+        return RedirectToAction("Index");
     }
 
     [HttpPost]
@@ -52,7 +53,7 @@ public class UrlsController : Controller
         _shortUrlRepository.Update(shortUrl);
         await _shortUrlRepository.Save();
 
-        return RedirectToAction("Manage");
+        return RedirectToAction("Index");
     }
 
     [HttpPost]
@@ -69,6 +70,6 @@ public class UrlsController : Controller
         _shortUrlRepository.Delete(shortUrl);
         await _shortUrlRepository.Save();
 
-        return RedirectToAction("Manage");
+        return RedirectToAction("Index");
     }
 }
