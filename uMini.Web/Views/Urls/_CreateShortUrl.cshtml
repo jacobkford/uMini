@@ -1,0 +1,27 @@
+﻿@inject SignInManager<IdentityUser> SignInManager
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</button>
+
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" asp-action="Create" asp-controller="Urls">
+                <div class="model-body">
+                    <div class="mb-3">
+                        <label class="form-label">Shortened Url Name</label>
+                        <input type="text" class="form-control" name="key">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Original Url to Shorten</label>
+                        <input type="text" class="form-control" name="url">
+                    </div>
+                    @if (SignInManager.IsSignedIn(@User))
+                    {
+                        <input name="creatorId" type="hidden" value=@User.FindFirst(ClaimTypes.NameIdentifier)?.Value />
+                    }
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
