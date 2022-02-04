@@ -37,4 +37,21 @@ public class UrlsController : Controller
 
         return RedirectToAction("Manage");
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EditShortUrlViewModel request)
+    {
+        var shortUrl = await _shortUrlRepository.FindAsync(request.Key);
+
+        if (shortUrl == null)
+        {
+            return NotFound();
+        }
+
+        _shortUrlRepository.Update(shortUrl);
+        await _shortUrlRepository.Save();
+
+        return RedirectToAction("Manage");
+    }
 }
