@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿namespace uMini.Web.Controllers;
 
-namespace uMini.Web.Controllers;
 public class RedirectController : Controller
 {
     private readonly ILogger<HomeController> _logger;
