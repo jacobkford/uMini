@@ -18,6 +18,8 @@ public static class ServiceRegistration
         services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
 
+        services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
+
         return services;
     }
 }

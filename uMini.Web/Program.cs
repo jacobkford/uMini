@@ -4,7 +4,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddControllersWithViews();
+
+builder.Services.AddControllersWithViews(config =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
+    config.Filters.Add(new AuthorizeFilter(policy));
+});
 
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
@@ -33,6 +41,29 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapRazorPages();
 
+app.Logger.LogInformation("Seeding Database...");
+
+using (var scope = app.Services.CreateScope())
+{
+    var scopedProvider = scope.ServiceProvider;
+    try
+    {
+        var shortUrlContext = scopedProvider.GetRequiredService<ShortUrlDbContext>();
+        await ShortUrlDbContextSeed.SeedAsync(shortUrlContext, app.Logger);
+
+        var identityContext = scopedProvider.GetRequiredService<ApplicationIdentityDbContext>();
+        var userManager = scopedProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+        await ApplicationIdentityDbContextSeed.SeedAsync(identityContext, userManager);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "An error occurred seeding the DB.");
+    }
+}
+
+app.Logger.LogInformation("Launching");
 app.Run();

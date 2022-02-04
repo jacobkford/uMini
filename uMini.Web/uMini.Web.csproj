@@ -22,8 +22,4 @@
     <ProjectReference Include="..\uMini.Infrastructure\uMini.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\Redirect\" />
-  </ItemGroup>
-
 </Project>
