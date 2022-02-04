@@ -1,20 +1,32 @@
-﻿@model ShortUrl
+﻿@model EditShortUrlViewModel
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target=@($"#edit{Model.Key}Modal")>Edit</button>
+<a data-bs-toggle="modal" data-bs-target=@($"#edit{Model.Key}Modal") class="btn btn-secondary btn-sm">
+    <i class="bi bi-pencil-square"></i>
+</a>
 
 <div class="modal fade" id=@($"edit{Model.Key}Modal") tabindex="-1" role="dialog" aria-labelledby=@($"edit{Model.Key}ModalLabel") aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <div class="modal-header text-center border-0">
+                <h5 class="modal-title">Edit MiniUrl</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
             <form method="post" asp-action="Edit" asp-controller="UserUrls">
                 <div class="model-body">
-                    <div class="mb-3">
-                        <label class="form-label">Shortened Url Name</label>
-                        <input type="text" name="key" class="form-control" placeholder=@Model.Key disabled>
+                    <div class="container p-3">
+                        <div class="form-floating mb-3">
+                            <input id="keyInputDisplay" type="text" name="keyDisplay" class="form-control" placeholder=@Model.Url value=@Model.Key disabled>
+                            <input asp-for="Key" type="hidden" value=@Model.Key />
+                            <label for="keyInputDisplay" class="form-label">MiniUrl Name</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Url" class="form-control" placeholder=@Model.Url>
+                            <label asp-for="Url" class="form-label">Url to Minimize</label>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Original Url to Shorten</label>
-                        <input type="text" name="url" class="form-control" placeholder=@Model.Url>
-                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>

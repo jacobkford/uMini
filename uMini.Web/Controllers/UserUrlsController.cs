@@ -26,15 +26,22 @@ public class UserUrlsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateShortUrlViewModel request)
     {
-        var newShortUrl = new ShortUrl
-        {
-            Key = request.Key,
-            Url = request.Url,
-            CreatorId = request.CreatorId,
-        };
+        request.CreatorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        await _shortUrlRepository.Add(newShortUrl);
-        await _shortUrlRepository.Save();
+        if (ModelState.IsValid)
+        {
+            var newShortUrl = new ShortUrl
+            {
+                Key = request.Key,
+                Url = request.Url,
+                CreatorId = request.CreatorId,
+            };
+
+            await _shortUrlRepository.Add(newShortUrl);
+            await _shortUrlRepository.Save();
+
+            return RedirectToAction("Index");
+        }
 
         return RedirectToAction("Index");
     }
@@ -50,7 +57,8 @@ public class UserUrlsController : Controller
             return NotFound();
         }
 
-        _shortUrlRepository.Update(shortUrl);
+        shortUrl.Url = request.Url;
+
         await _shortUrlRepository.Save();
 
         return RedirectToAction("Index");

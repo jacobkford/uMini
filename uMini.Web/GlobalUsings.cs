@@ -10,3 +10,4 @@ global using uMini.Infrastructure.Data;
 global using uMini.Infrastructure.Identity;
 global using System.Security.Claims;
 global using uMini.Infrastructure.Entities;
+global using System.ComponentModel.DataAnnotations;

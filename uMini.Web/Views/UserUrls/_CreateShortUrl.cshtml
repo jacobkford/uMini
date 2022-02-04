@@ -1,24 +1,31 @@
-﻿@inject SignInManager<IdentityUser> SignInManager
+﻿@model CreateShortUrlViewModel
 
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">Create</button>
+<a data-bs-toggle="modal" data-bs-target="#createModal" class="btn btn-primary">
+    <i class="bi bi-plus-square"></i> &nbsp; New
+</a>
 
 <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <div class="modal-header text-center border-0">
+                <h5 class="modal-title">Create New MiniUrl</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
             <form method="post" asp-action="Create" asp-controller="UserUrls">
                 <div class="model-body">
-                    <div class="mb-3">
-                        <label class="form-label">Shortened Url Name</label>
-                        <input type="text" class="form-control" name="key">
+                    <div class="container p-3">
+                        <div class="form-floating mb-3">       
+                            <input asp-for="Key" class="form-control" placeholder="Example: MyMiniLink">
+                            <label asp-for="Key" class="form-label">MiniUrl Name</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Url" class="form-control" placeholder="Example: https://google.com/">
+                            <label asp-for="Url" class="form-label">Url to Minimize</label>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Original Url to Shorten</label>
-                        <input type="text" class="form-control" name="url">
-                    </div>
-                    @if (SignInManager.IsSignedIn(@User))
-                    {
-                        <input name="creatorId" type="hidden" value=@User.FindFirst(ClaimTypes.NameIdentifier)?.Value />
-                    }
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>     
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
