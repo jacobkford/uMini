@@ -54,4 +54,21 @@ public class UrlsController : Controller
 
         return RedirectToAction("Manage");
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(string key)
+    {
+        var shortUrl = await _shortUrlRepository.FindAsync(key);
+
+        if (shortUrl == null)
+        {
+            return NotFound();
+        }
+
+        _shortUrlRepository.Delete(shortUrl);
+        await _shortUrlRepository.Save();
+
+        return RedirectToAction("Manage");
+    }
 }
