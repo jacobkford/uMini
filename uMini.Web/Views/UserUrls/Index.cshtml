@@ -1,6 +1,4 @@
-﻿@inject SignInManager<IdentityUser> SignInManager
-@model IEnumerable<ShortUrl>
-
+﻿@model IEnumerable<ShortUrl>
 @{
     ViewData["Title"] = "Manage";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -12,7 +10,9 @@
             <h2 class="text-primary">My Mini Url's</h2>
         </div>
         <div class="col-6 text-end">
-            <partial name="_CreateShortUrl" model="new CreateShortUrlViewModel()" view-data="ViewData" />
+            <a asp-controller="UserUrls" asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-square"></i> &nbsp; New
+            </a>
         </div>
     </div>
     <br />
@@ -43,10 +43,12 @@
                             @shortUrl.Url
                         </td>
                         <td width="5%" class="text-center">                       
-                            <partial name="_EditShortUrl" model="new EditShortUrlViewModel() { Key = shortUrl.Key, Url = shortUrl.Url }" view-data="ViewData" />     
+                            <a asp-controller="UserUrls" asp-action="Edit" asp-route-key="@shortUrl.Key" class="btn btn-secondary btn-sm">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>  
                         </td>
                         <td width="5%" class="text-center">
-                            <partial name="_DeleteShortUrl" model="shortUrl" view-data="ViewData" />
+                            <partial name="_DeletePartial" model="shortUrl" view-data="ViewData" />
                         </td>
                     </tr>
                 }

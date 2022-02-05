@@ -1,0 +1,28 @@
+﻿@model EditShortUrlViewModel
+
+<form method="post" asp-action="Edit" asp-controller="UserUrls">
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2>Create MiniUrl</h2>
+            <hr />
+        </div>
+        <div class="form-floating mb-3">
+            <input id="keyInputDisplay" type="text" name="keyDisplay" class="form-control" placeholder=@Model.Url value=@Model.Key disabled>
+            <input asp-for="Key" type="hidden" value=@Model.Key />
+            <label for="keyInputDisplay" class="form-label">MiniUrl Name</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="Url" class="form-control" placeholder=@Model.Url>
+            <label asp-for="Url" class="form-label">Url to Minimize</label>
+            <span asp-validation-for="Url" class="text-danger"></span>
+        </div>
+    </div>
+    <a asp-controller="UserUrls" asp-action="Index" class="btn btn-secondary">Go Back</a>    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

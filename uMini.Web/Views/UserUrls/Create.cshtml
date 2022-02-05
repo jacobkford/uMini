@@ -1,0 +1,28 @@
+﻿@model CreateShortUrlViewModel
+
+<form method="post">
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2>Create MiniUrl</h2>
+            <hr />
+        </div>
+        <div class="form-floating mb-3">       
+            <input asp-for="Key" class="form-control" placeholder="Example: MyMiniLink">
+            <label asp-for="Key" class="form-label">MiniUrl Name</label>
+            <span asp-validation-for="Key" class="text-danger"></span>
+        </div>
+        <div class="form-floating mb-3">
+            <input asp-for="Url" class="form-control" placeholder="Example: https://google.com/">
+            <label asp-for="Url" class="form-label">Url to Minimize</label>
+            <span asp-validation-for="Url" class="text-danger"></span>
+        </div>  
+    </div>
+    <a asp-controller="UserUrls" asp-action="Index" class="btn btn-secondary">Go Back</a>     
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

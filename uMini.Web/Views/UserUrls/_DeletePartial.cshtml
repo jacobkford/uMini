@@ -7,12 +7,8 @@
 <div class="modal fade" id=@($"delete{Model.Key}Modal") tabindex="-1" role="dialog" aria-labelledby=@($"delete{Model.Key}ModalLabel") aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header text-center border-0">
-                <h5 class="modal-title">Delete MiniUrl</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
             <form method="post" asp-action="Delete" asp-controller="UserUrls">
-                <div class="model-body">
+                <div class="model-body mt-3">
                     <h5 class="modal-title">Are you sure you want to delete "@Model.Key"?</h5>
                     <input name="key" type="hidden" value=@Model.Key />
                 </div>

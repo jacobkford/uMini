@@ -22,11 +22,23 @@ public class UserUrlsController : Controller
         return View(urls);
     }
 
+    public IActionResult Create()
+    {
+        return View();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateShortUrlViewModel request)
     {
         request.CreatorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var keyAlreadyExists = await _shortUrlRepository.FindAsync(request.Key);
+
+        if (keyAlreadyExists is not null)
+        {
+            ModelState.AddModelError("key", "A MiniUrl already exists with this name.");
+        }
 
         if (ModelState.IsValid)
         {
@@ -40,28 +52,55 @@ public class UserUrlsController : Controller
             await _shortUrlRepository.Add(newShortUrl);
             await _shortUrlRepository.Save();
 
+            TempData["success"] = "Successfully created MiniUrl!";
+
             return RedirectToAction("Index");
         }
 
-        return RedirectToAction("Index");
+        return View(request);
+    }
+
+    public async Task<IActionResult> Edit(string? key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return NotFound();
+        }
+            
+        var miniUrl = await _shortUrlRepository.FindAsync(key);
+
+        if (miniUrl == null)
+        {
+            return NotFound();
+        }
+
+        var viewModel = new EditShortUrlViewModel { Key = miniUrl.Key, Url = miniUrl.Url };
+
+        return View(viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditShortUrlViewModel request)
     {
-        var shortUrl = await _shortUrlRepository.FindAsync(request.Key);
-
-        if (shortUrl == null)
+        if (ModelState.IsValid)
         {
-            return NotFound();
+            var shortUrl = await _shortUrlRepository.FindAsync(request.Key);
+
+            if (shortUrl == null)
+            {
+                return NotFound();
+            }
+
+            shortUrl.Url = request.Url;
+
+            await _shortUrlRepository.Save();
+
+            TempData["success"] = "Successfully editted MiniUrl!";
+
+            return RedirectToAction("Index");
         }
-
-        shortUrl.Url = request.Url;
-
-        await _shortUrlRepository.Save();
-
-        return RedirectToAction("Index");
+        return View(request);  
     }
 
     [HttpPost]
@@ -77,6 +116,8 @@ public class UserUrlsController : Controller
 
         _shortUrlRepository.Delete(shortUrl);
         await _shortUrlRepository.Save();
+
+        TempData["success"] = "Successfully deleted MiniUrl!";
 
         return RedirectToAction("Index");
     }
