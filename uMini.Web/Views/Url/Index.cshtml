@@ -21,32 +21,22 @@
         <table class="mx-auto table table-striped text-center">
             <thead>
                 <tr>
-                    <th>
-                        MiniUrl
-                    </th>
-                    <th>
-                        Orignal Url
-                    </th>
-                    <th>
-                    </th>
-                    <th>
-                    </th>
+                    <th>MiniUrl</th>
+                    <th>Orignal Url</th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach(var shortUrl in Model)
                 {
                     <tr class="table-active">
-                        <td width="40%">
-                            @shortUrl.Key
-                        </td>
-                        <td width="40%">
-                            @shortUrl.Url
-                        </td>
+                        <td width="40%">@shortUrl.Key</td>
+                        <td width="40%">@shortUrl.Url</td>
                         <td width="5%" class="text-center">                       
                             <a asp-controller="UserUrls" asp-action="Edit" asp-route-key="@shortUrl.Key" class="btn btn-secondary btn-sm">
                                 <i class="bi bi-pencil-square"></i>
-                            </a>  
+                            </a>
                         </td>
                         <td width="5%" class="text-center">
                             <partial name="_DeletePartial" model="shortUrl" view-data="ViewData" />

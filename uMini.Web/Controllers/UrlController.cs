@@ -2,12 +2,12 @@
 
 [Authorize]
 [Route("my/urls/{action=Index}")]
-public class UserUrlsController : Controller
+public class UrlController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
 
-    public UserUrlsController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository)
+    public UrlController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository)
     {
         _logger = logger;
         _shortUrlRepository = shortUrlRepository;
