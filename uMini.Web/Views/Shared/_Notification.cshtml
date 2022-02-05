@@ -1,0 +1,20 @@
+﻿<div aria-live="polite" aria-atomic="true" class="position-relative">
+    <div class="toast-container position-absolute top-0 start-50 translate-middle-x p-3">
+    @if (TempData["success"] is not null)
+    {
+        <div class="toast align-items-center bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body">
+                <i class="bi bi-check-circle"></i> &nbsp; @TempData["success"]
+            </div>
+        </div>     
+    }
+    @if (TempData["error"] is not null)
+    {
+        <div class="toast align-items-center alert-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body">
+                <i class="bi bi-exclamation-triangle-fill"></i> &nbsp; @TempData["error"]
+            </div>
+        </div>
+    }
+    </div>
+</div>
