@@ -6,11 +6,13 @@ public class UrlController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
+    private readonly IMapper _mapper;
 
-    public UrlController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository)
+    public UrlController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository, IMapper mapper)
     {
         _logger = logger;
         _shortUrlRepository = shortUrlRepository;
+        _mapper = mapper;
     }
 
     public async Task<IActionResult> Index()
@@ -19,7 +21,9 @@ public class UrlController : Controller
 
         var urls = await _shortUrlRepository.FindAllByUserIdAsync(userId?.Value);
 
-        return View(urls);
+        var data = _mapper.Map<IEnumerable<ShortUrl>, IEnumerable<ShortUrlViewModel>>(urls);
+
+        return View(data);
     }
 
     public IActionResult Create()

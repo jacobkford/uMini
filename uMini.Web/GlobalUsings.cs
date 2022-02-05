@@ -2,6 +2,7 @@
 global using Microsoft.AspNetCore.Mvc;
 global using System.Diagnostics;
 global using uMini.Web.Models;
+global using uMini.Web.Helpers;
 global using uMini.Infrastructure.Repositories;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Identity;
@@ -11,3 +12,4 @@ global using uMini.Infrastructure.Identity;
 global using System.Security.Claims;
 global using uMini.Infrastructure.Entities;
 global using System.ComponentModel.DataAnnotations;
+global using AutoMapper;

@@ -18,6 +18,8 @@ builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
