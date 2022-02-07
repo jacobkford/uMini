@@ -11,7 +11,7 @@
             <h2 class="text-primary">My Mini Url's</h2>
         </div>
         <div class="col-6 text-end">
-            <a asp-controller="UserUrls" asp-action="Create" class="btn btn-primary">
+            <a asp-controller="Url" asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-square"></i> &nbsp; New
             </a>
         </div>
@@ -21,25 +21,25 @@
         <table class="mx-auto table table-striped text-center">
             <thead>
                 <tr>
-                    <th>MiniUrl</th>
-                    <th>Orignal Url</th>
+                    <th>@Html.DisplayNameFor(model => model.Key)</th>
+                    <th>@Html.DisplayNameFor(model => model.Url)</th>
                     <th></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach(var shortUrl in Model)
+                @foreach(var miniUrl in Model)
                 {
                     <tr class="table-active">
-                        <td width="40%">@shortUrl.Key</td>
-                        <td width="40%">@shortUrl.Url</td>
-                        <td width="5%" class="text-center">                       
-                            <a asp-controller="UserUrls" asp-action="Edit" asp-route-key="@shortUrl.Key" class="btn btn-secondary btn-sm">
+                        <td width="40%">@Html.DisplayFor(modelItem => miniUrl.Key)</td>
+                        <td width="40%">@Html.DisplayFor(modelItem => miniUrl.Url)</td>
+                        <td width="5%" class="text-center">              
+                            <a asp-controller="Url" asp-action="Edit" asp-route-key="@miniUrl.Key" class="btn btn-secondary btn-sm">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                         </td>
                         <td width="5%" class="text-center">
-                            <partial name="_DeletePartial" model="shortUrl" view-data="ViewData" />
+                            <partial name="_DeletePartial" model="miniUrl" view-data="ViewData" />
                         </td>
                     </tr>
                 }

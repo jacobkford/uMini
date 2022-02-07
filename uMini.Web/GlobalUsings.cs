@@ -13,3 +13,4 @@ global using System.Security.Claims;
 global using uMini.Infrastructure.Entities;
 global using System.ComponentModel.DataAnnotations;
 global using AutoMapper;
+global using uMini.Web.Extensions;

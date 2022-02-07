@@ -1,13 +1,13 @@
 ﻿@model EditShortUrlViewModel
 
-<form method="post" asp-action="Edit" asp-controller="UserUrls">
+<form method="post">
     <div class="border p-3 mt-4">
         <div class="row pb-2">
             <h2>Create MiniUrl</h2>
             <hr />
         </div>
         <div class="form-floating mb-3">
-            <input id="keyInputDisplay" type="text" name="keyDisplay" class="form-control" placeholder=@Model.Url value=@Model.Key disabled>
+            <input id="keyInputDisplay" type="text" name="keyDisplay" class="form-control" value=@Model.Key disabled>
             <input asp-for="Key" type="hidden" value=@Model.Key />
             <label for="keyInputDisplay" class="form-label">MiniUrl Name</label>
         </div>
@@ -17,7 +17,7 @@
             <span asp-validation-for="Url" class="text-danger"></span>
         </div>
     </div>
-    <a asp-controller="UserUrls" asp-action="Index" class="btn btn-secondary">Go Back</a>    
+    <a asp-controller="Url" asp-action="Index" class="btn btn-secondary">Go Back</a>    
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 

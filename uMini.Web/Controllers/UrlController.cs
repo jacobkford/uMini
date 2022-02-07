@@ -33,10 +33,8 @@ public class UrlController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateShortUrlViewModel request)
+    public async Task<IActionResult> Create([Bind("Key,Url")] CreateShortUrlViewModel request)
     {
-        request.CreatorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
         var keyAlreadyExists = await _shortUrlRepository.FindAsync(request.Key);
 
         if (keyAlreadyExists is not null)
@@ -44,38 +42,47 @@ public class UrlController : Controller
             ModelState.AddModelError("key", "A MiniUrl already exists with this name.");
         }
 
-        if (ModelState.IsValid)
+        if (!request.Url.IsValidUrl())
+        {
+            ModelState.AddModelError("url", "Invalid Url, make sure it starts with either http:// or https://");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(request);
+        }
+
+        try
         {
             var newShortUrl = new ShortUrl
             {
                 Key = request.Key,
                 Url = request.Url,
-                CreatorId = request.CreatorId,
+                CreatorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
             };
 
             await _shortUrlRepository.Add(newShortUrl);
             await _shortUrlRepository.Save();
 
             TempData["success"] = "Successfully created MiniUrl!";
-
-            return RedirectToAction("Index");
+        }
+        catch (Exception ex)
+        {
+            TempData["error"] = $"Unable to save changes. Try again, and if the problem persists see your system administrator.";
+            Console.WriteLine(ex);
         }
 
-        return View(request);
+        return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> Edit(string? key)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-        {
-            return NotFound();
-        }
-            
+    public async Task<IActionResult> Edit(string key)
+    {           
         var miniUrl = await _shortUrlRepository.FindAsync(key);
 
-        if (miniUrl == null)
+        if (miniUrl is null)
         {
-            return NotFound();
+            TempData["error"] = "Internal error, couldn't find entry to edit";
+            return RedirectToAction(nameof(Index));
         }
 
         var viewModel = new EditShortUrlViewModel { Key = miniUrl.Key, Url = miniUrl.Url };
@@ -87,24 +94,24 @@ public class UrlController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditShortUrlViewModel request)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            var shortUrl = await _shortUrlRepository.FindAsync(request.Key);
-
-            if (shortUrl == null)
-            {
-                return NotFound();
-            }
-
-            shortUrl.Url = request.Url;
-
-            await _shortUrlRepository.Save();
-
-            TempData["success"] = "Successfully editted MiniUrl!";
-
-            return RedirectToAction("Index");
+            return View(request);  
         }
-        return View(request);  
+
+        var shortUrl = await _shortUrlRepository.FindAsync(request.Key);
+        if (shortUrl is not null)
+        {
+            shortUrl.Url = request.Url;
+            await _shortUrlRepository.Save();
+            TempData["success"] = "Successfully editted MiniUrl!";
+        }
+        else
+        {
+            TempData["error"] = "Internal error, couldn't find entry to edit";
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
@@ -112,17 +119,17 @@ public class UrlController : Controller
     public async Task<IActionResult> Delete(string key)
     {
         var shortUrl = await _shortUrlRepository.FindAsync(key);
-
-        if (shortUrl == null)
+        if (shortUrl is not null)
         {
-            return NotFound();
+            _shortUrlRepository.Delete(shortUrl);
+            await _shortUrlRepository.Save();
+            TempData["success"] = "Successfully deleted MiniUrl!";
+        }
+        else
+        {
+            TempData["error"] = "Internal error, couldn't find entry to delete";
         }
 
-        _shortUrlRepository.Delete(shortUrl);
-        await _shortUrlRepository.Save();
-
-        TempData["success"] = "Successfully deleted MiniUrl!";
-
-        return RedirectToAction("Index");
+        return RedirectToAction(nameof(Index));
     }
 }

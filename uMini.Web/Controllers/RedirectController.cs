@@ -1,5 +1,6 @@
 ﻿namespace uMini.Web.Controllers;
 
+[AllowAnonymous]
 public class RedirectController : Controller
 {
     private readonly ILogger<HomeController> _logger;
@@ -16,11 +17,16 @@ public class RedirectController : Controller
     {
         var data = await _shortUrlRepository.FindAsync(key);
 
-        if (data != null)
+        if (data is null)
         {
-            return Redirect(data.Url);
+            return RedirectToAction(nameof(ShortUrlNotFound));
         }
 
-        return View("ShortUrlNotFound", key);
+        return Redirect(data.Url);
+    }
+
+    public IActionResult ShortUrlNotFound(string key)
+    {
+        return View(key);
     }
 }
