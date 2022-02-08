@@ -15,14 +15,22 @@ public class UrlController : Controller
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string sortOrder)
     {
+        ViewData["ShortUrlSortParm"] = String.IsNullOrEmpty(sortOrder) ? "shortUrl_desc" : "";
+        ViewData["LongUrlSortParm"] = sortOrder == "longUrl" ? "longUrl_desc" : "longUrl";
+
         var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-
         var urls = await _shortUrlRepository.FindAllByUserIdAsync(userId?.Value);
-
         var data = _mapper.Map<IEnumerable<ShortUrl>, IEnumerable<ShortUrlViewModel>>(urls);
 
+        data = sortOrder switch
+        {
+            "shortUrl_desc" => data.OrderByDescending(s => s.Key),
+            "longUrl" => data.OrderBy(s => s.Url),
+            "longUrl_desc" => data.OrderByDescending(s => s.Url),
+            _ => data.OrderBy(s => s.Key),
+        };
         return View(data);
     }
 

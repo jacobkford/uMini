@@ -22,10 +22,10 @@
             <thead>
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model.CustomUrl)
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["ShortUrlSortParm"]">@Html.DisplayNameFor(model => model.CustomUrl)</a>
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Url)
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["LongUrlSortParm"]">@Html.DisplayNameFor(model => model.Url)</a>
                     </th>
                     <th></th>
                 </tr>
