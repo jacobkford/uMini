@@ -4,6 +4,7 @@ public class MappingProfiles : Profile
 {
     public MappingProfiles()
     {
-        CreateMap<ShortUrl, ShortUrlViewModel>();
+        CreateMap<ShortUrl, ShortUrlViewModel>()
+            .ForMember(dest => dest.CustomUrl, x => x.MapFrom<AbsoluteShortUrlViewResolver>());
     }
 }

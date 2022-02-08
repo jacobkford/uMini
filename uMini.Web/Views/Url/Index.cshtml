@@ -21,9 +21,12 @@
         <table class="mx-auto table table-striped text-center">
             <thead>
                 <tr>
-                    <th>@Html.DisplayNameFor(model => model.Key)</th>
-                    <th>@Html.DisplayNameFor(model => model.Url)</th>
-                    <th></th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CustomUrl)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Url)
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -31,14 +34,16 @@
                 @foreach(var miniUrl in Model)
                 {
                     <tr class="table-active">
-                        <td width="40%">@Html.DisplayFor(modelItem => miniUrl.Key)</td>
-                        <td width="40%">@Html.DisplayFor(modelItem => miniUrl.Url)</td>
-                        <td width="5%" class="text-center">              
+                        <td>
+                            @Html.DisplayFor(modelItem => miniUrl.CustomUrl)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => miniUrl.Url)
+                        </td>
+                        <td class="text-center">              
                             <a asp-controller="Url" asp-action="Edit" asp-route-key="@miniUrl.Key" class="btn btn-secondary btn-sm">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                        </td>
-                        <td width="5%" class="text-center">
                             <partial name="_DeletePartial" model="miniUrl" view-data="ViewData" />
                         </td>
                     </tr>

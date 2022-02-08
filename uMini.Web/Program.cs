@@ -14,6 +14,10 @@ builder.Services.AddControllersWithViews(config =>
     config.Filters.Add(new AuthorizeFilter(policy));
 });
 
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddTransient<AbsoluteShortUrlViewResolver>();
+
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
