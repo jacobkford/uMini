@@ -7,13 +7,23 @@
 <partial name="_Notification" />
 <div class="container p-5">
     <div class="row pt-4">
-        <div class="col-6">
+        <div class="col-12">
             <h2 class="text-primary">My Mini Url's</h2>
         </div>
-        <div class="col-6 text-end">
+    </div>
+    <div class="row pt-4">
+        <div class="col-6 input-group-sm">
             <a asp-controller="Url" asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-square"></i> &nbsp; New
             </a>
+        </div>
+        <div class="col-6">
+            <form method="get" asp-action="Index">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                    <button type="submit" value="Search" class="btn btn-secondary">Search</button>
+                </div>
+            </form>
         </div>
     </div>
     <br />
