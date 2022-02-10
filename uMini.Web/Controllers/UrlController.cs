@@ -15,22 +15,33 @@ public class UrlController : Controller
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> Index(string sortOrder, string searchString)
+    public async Task<IActionResult> Index(string sort, string filter, string query, int? page)
     {
-        ViewData["ShortUrlSortParm"] = String.IsNullOrEmpty(sortOrder) ? "shortUrl_desc" : "";
-        ViewData["LongUrlSortParm"] = sortOrder == "longUrl" ? "longUrl_desc" : "longUrl";
-        ViewData["CurrentFilter"] = searchString;
+        ViewData["CurrentSort"] = sort;
+        ViewData["ShortUrlSortParm"] = string.IsNullOrEmpty(sort) ? "shortUrl_desc" : "";
+        ViewData["LongUrlSortParm"] = sort == "longUrl" ? "longUrl_desc" : "longUrl";
+
+        if (query != null)
+        {
+            page = 1;
+        }
+        else
+        {
+            query = filter;
+        }
+
+        ViewData["CurrentFilter"] = query;
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier);
         var urls = await _shortUrlRepository.FindAllByUserIdAsync(userId?.Value);
         var data = _mapper.Map<IEnumerable<ShortUrl>, IEnumerable<ShortUrlViewModel>>(urls);
 
-        if (!string.IsNullOrEmpty(searchString))
+        if (!string.IsNullOrEmpty(query))
         {
-            data = data.Where(u => u.Key.Contains(searchString) || u.Url.Contains(searchString));
+            data = data.Where(u => u.Key.Contains(query) || u.Url.Contains(query));
         }
 
-        data = sortOrder switch
+        data = sort switch
         {
             "shortUrl_desc" => data.OrderByDescending(s => s.Key),
             "longUrl" => data.OrderBy(s => s.Url),
@@ -38,7 +49,8 @@ public class UrlController : Controller
             _ => data.OrderBy(s => s.Key),
         };
 
-        return View(data);
+        int pageSize = 3;
+        return View(PaginatedList<ShortUrlViewModel>.Create(data, page ?? 1, pageSize));
     }
 
     public IActionResult Create()
