@@ -1,14 +1,14 @@
-﻿namespace uMini.Web.Controllers;
+﻿namespace uMini.Web.Areas.My.Controllers;
 
 [Authorize]
-[Area("My")]
+[Area("User")]
 public class UrlsController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<UrlsController> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
     private readonly IMapper _mapper;
 
-    public UrlsController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository, IMapper mapper)
+    public UrlsController(ILogger<UrlsController> logger, IShortUrlRepository shortUrlRepository, IMapper mapper)
     {
         _logger = logger;
         _shortUrlRepository = shortUrlRepository;
@@ -31,7 +31,7 @@ public class UrlsController : Controller
 
         var pageSizeList = new PageSizeSelectList();
 
-        foreach(var item in pageSizeList.Where(x => x.Value == pageSize.ToString()))
+        foreach (var item in pageSizeList.Where(x => x.Value == pageSize.ToString()))
         {
             item.Selected = true;
         }
@@ -120,7 +120,7 @@ public class UrlsController : Controller
     }
 
     public async Task<IActionResult> Edit(string key)
-    {           
+    {
         var miniUrl = await _shortUrlRepository.FindAsync(key);
 
         if (miniUrl is null)
@@ -140,7 +140,7 @@ public class UrlsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View(request);  
+            return View(request);
         }
 
         var shortUrl = await _shortUrlRepository.FindAsync(request.Key);

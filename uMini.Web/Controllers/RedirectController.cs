@@ -3,10 +3,10 @@
 [AllowAnonymous]
 public class RedirectController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<RedirectController> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
 
-    public RedirectController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository)
+    public RedirectController(ILogger<RedirectController> logger, IShortUrlRepository shortUrlRepository)
     {
         _logger = logger;
         _shortUrlRepository = shortUrlRepository;

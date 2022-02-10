@@ -13,12 +13,12 @@
     </div>
     <div class="row pt-4">
         <div class="col-6 input-group-sm">
-            <a asp-area="My" asp-controller="Urls" asp-action="Create" class="btn btn-primary">
+            <a asp-area="User" asp-controller="Urls" asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-square"></i> &nbsp; New
             </a>
         </div>
         <div class="col-6">
-            <form method="get" asp-area="My" asp-controller="Urls" asp-action="Index">
+            <form method="get" asp-area="User" asp-controller="Urls" asp-action="Index">
                 <div class="input-group input-group-sm">
                     <input type="text" class="form-control" name="query" value="@ViewData["CurrentFilter"]" />
                     <button type="submit" value="Search" class="btn btn-secondary">Search</button>
@@ -32,14 +32,14 @@
             <thead>
                 <tr>
                     <th>
-                        <a asp-area="My" asp-controller="Urls" asp-action="Index" 
+                        <a asp-area="User" asp-controller="Urls" asp-action="Index" 
                             asp-route-sort="@ViewData["ShortUrlSortParm"]" 
                             asp-route-filter="@ViewData["CurrentFilter"]">
                             MiniUrl
                         </a>
                     </th>
                     <th>
-                        <a asp-area="My" asp-controller="Urls" asp-action="Index" 
+                        <a asp-area="User" asp-controller="Urls" asp-action="Index" 
                             asp-route-sort="@ViewData["LongUrlSortParm"]" 
                             asp-route-filter="@ViewData["CurrentFilter"]">
                             LongUrl
@@ -59,7 +59,7 @@
                             @Html.DisplayFor(modelItem => miniUrl.Url)
                         </td>
                         <td class="text-center">              
-                            <a asp-area="My" asp-controller="Urls" asp-action="Edit" asp-route-key="@miniUrl.Key" class="btn btn-secondary btn-sm">
+                            <a asp-area="User" asp-controller="Urls" asp-action="Edit" asp-route-key="@miniUrl.Key" class="btn btn-secondary btn-sm">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
                             <partial name="_DeletePartial" model="miniUrl" view-data="ViewData" />
@@ -73,7 +73,7 @@
             var nextDisabled = !Model.HasNextPage ? "disabled" : "";
         }
 
-        <a asp-area="My" 
+        <a asp-area="User" 
             asp-controller="Urls"
             asp-action="Index"
             asp-route-sort="@ViewData["CurrentSort"]"
@@ -83,7 +83,7 @@
             class="btn btn-default @prevDisabled">
             Previous
         </a>
-        <a asp-area="My" 
+        <a asp-area="User" 
             asp-controller="Urls"
             asp-action="Index"
             asp-route-sort="@ViewData["CurrentSort"]"
@@ -93,7 +93,7 @@
             class="btn btn-default @nextDisabled">
             Next
         </a>
-        <form method="get" asp-area="My" asp-controller="Urls" asp-action="Index">
+        <form method="get" asp-area="User" asp-controller="Urls" asp-action="Index">
             <select name="size" 
                 id="pageSize" 
                 class="form-control" 

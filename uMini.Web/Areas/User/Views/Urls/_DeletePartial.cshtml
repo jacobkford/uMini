@@ -7,7 +7,7 @@
 <div class="modal fade" id=@($"delete{Model.Key}Modal") tabindex="-1" role="dialog" aria-labelledby=@($"delete{Model.Key}ModalLabel") aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form method="post" asp-action="Delete" asp-controller="Url">
+            <form method="post" asp-area="User" asp-controller="Urls" asp-action="Delete">
                 <div class="model-body mt-3">
                     <h5 class="modal-title">Are you sure you want to delete "@Model.Key"?</h5>
                     <input name="key" type="hidden" value=@Model.Key />
