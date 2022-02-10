@@ -15,11 +15,29 @@ public class UrlsController : Controller
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> Index(string sort, string filter, string query, int? page)
+    public async Task<IActionResult> Index(string sort, string filter, string query, int? page, int? size)
     {
         ViewData["CurrentSort"] = sort;
         ViewData["ShortUrlSortParm"] = string.IsNullOrEmpty(sort) ? "shortUrl_desc" : "";
         ViewData["LongUrlSortParm"] = sort == "longUrl" ? "longUrl_desc" : "longUrl";
+
+        int pageSize = 10;
+        int pageMaxSize = 50;
+
+        if (size is not null)
+        {
+            pageSize = size > pageMaxSize ? pageMaxSize : (int)size;
+        }
+
+        var pageSizeList = new PageSizeSelectList();
+
+        foreach(var item in pageSizeList.Where(x => x.Value == pageSize.ToString()))
+        {
+            item.Selected = true;
+        }
+
+        ViewData["PageSize"] = pageSize;
+        ViewData["PageSizeList"] = pageSizeList;
 
         if (query != null)
         {
@@ -49,7 +67,6 @@ public class UrlsController : Controller
             _ => data.OrderBy(s => s.Key),
         };
 
-        int pageSize = 10;
         return View(PaginatedList<ShortUrlViewModel>.Create(data, page ?? 1, pageSize));
     }
 
