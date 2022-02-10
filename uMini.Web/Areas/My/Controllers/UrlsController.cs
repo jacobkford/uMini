@@ -1,14 +1,14 @@
 ﻿namespace uMini.Web.Controllers;
 
 [Authorize]
-[Route("my/urls/{action=Index}")]
-public class UrlController : Controller
+[Area("My")]
+public class UrlsController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
     private readonly IMapper _mapper;
 
-    public UrlController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository, IMapper mapper)
+    public UrlsController(ILogger<HomeController> logger, IShortUrlRepository shortUrlRepository, IMapper mapper)
     {
         _logger = logger;
         _shortUrlRepository = shortUrlRepository;
@@ -49,7 +49,7 @@ public class UrlController : Controller
             _ => data.OrderBy(s => s.Key),
         };
 
-        int pageSize = 3;
+        int pageSize = 10;
         return View(PaginatedList<ShortUrlViewModel>.Create(data, page ?? 1, pageSize));
     }
 
