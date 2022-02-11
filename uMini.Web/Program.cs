@@ -20,8 +20,6 @@ builder.Services.AddTransient<AbsoluteShortUrlViewResolver>();
 
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
-builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 var app = builder.Build();
@@ -47,6 +45,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAreaControllerRoute(
+    name: "Identity",
+    areaName: "Identity",
+    pattern: "i/{controller=Home}/{action=Index}/{id?}");
+
+app.MapAreaControllerRoute(
     name: "User",
     areaName: "User",
     pattern: "u/{controller=Home}/{action=Index}/{id?}");
@@ -58,8 +61,6 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapRazorPages();
 
 app.Logger.LogInformation("Seeding Database...");
 

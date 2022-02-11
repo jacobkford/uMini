@@ -15,6 +15,7 @@ public class UrlsController : Controller
         _mapper = mapper;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Index(string sort, string filter, string query, int? page, int? size)
     {
         ViewData["CurrentSort"] = sort;
@@ -70,6 +71,7 @@ public class UrlsController : Controller
         return View(PaginatedList<ShortUrlViewModel>.Create(data, page ?? 1, pageSize));
     }
 
+    [HttpGet]
     public IActionResult Create()
     {
         return View();
@@ -119,6 +121,7 @@ public class UrlsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
     public async Task<IActionResult> Edit(string key)
     {
         var miniUrl = await _shortUrlRepository.FindAsync(key);

@@ -24,4 +24,8 @@
     <ProjectReference Include="..\uMini.Infrastructure\uMini.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\ManageViewModels\" />
+  </ItemGroup>
+
 </Project>

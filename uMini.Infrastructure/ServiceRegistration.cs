@@ -1,6 +1,4 @@
-﻿using uMini.Infrastructure.Repositories;
-
-namespace uMini.Infrastructure;
+﻿namespace uMini.Infrastructure;
 
 public static class ServiceRegistration
 {
@@ -15,10 +13,29 @@ public static class ServiceRegistration
         services.AddDbContext<ApplicationIdentityDbContext>(options =>
             options.UseSqlServer(identityConnectionString));
 
-        services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            .AddEntityFrameworkStores<ApplicationIdentityDbContext>();
+        services.AddIdentityCore<ApplicationUser>()
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationIdentityDbContext>()
+            .AddSignInManager()
+            .AddDefaultTokenProviders();
+
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.SignIn.RequireConfirmedAccount = false;
+            options.SignIn.RequireConfirmedPhoneNumber = false;
+        });
+
+        services.AddAuthentication(o =>
+        {
+            o.DefaultScheme = IdentityConstants.ApplicationScheme;
+            o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+        })
+        .AddIdentityCookies(o => { });
 
         services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
+
+        services.AddTransient<IEmailSender, AuthenticationMessageSender>();
+        services.AddTransient<ISmsSender, AuthenticationMessageSender>();
 
         return services;
     }
