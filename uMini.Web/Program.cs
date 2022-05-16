@@ -15,8 +15,11 @@ builder.Services.AddControllersWithViews(config =>
 });
 
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddTransient<AbsoluteShortUrlViewResolver>();
+builder.Services.AddTransient<AbsoluteShortUrlResolver>();
+builder.Services.AddToastrNotifications(options =>
+{
+    options.PositionClass = "toast-bottom-right";
+});
 
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
@@ -44,6 +47,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseHostUrlMiddleware();
+
 app.MapAreaControllerRoute(
     name: "Identity",
     areaName: "Identity",
@@ -53,6 +58,11 @@ app.MapAreaControllerRoute(
     name: "User",
     areaName: "User",
     pattern: "u/{controller=Home}/{action=Index}/{id?}");
+
+app.MapAreaControllerRoute(
+    name: "Admin",
+    areaName: "Admin",
+    pattern: "a/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "areas",
@@ -70,12 +80,15 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var shortUrlContext = scopedProvider.GetRequiredService<ShortUrlDbContext>();
+
+        await shortUrlContext.Database.MigrateAsync();
         await ShortUrlDbContextSeed.SeedAsync(shortUrlContext, app.Logger);
 
         var identityContext = scopedProvider.GetRequiredService<ApplicationIdentityDbContext>();
-        var userManager = scopedProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var userManager = scopedProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scopedProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-        await ApplicationIdentityDbContextSeed.SeedAsync(identityContext, userManager);
+        await ApplicationIdentityDbContextSeed.SeedAsync(identityContext, userManager, roleManager);
     }
     catch (Exception ex)
     {

@@ -8,6 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["uMini.Web/uMini.Web.csproj", "uMini.Web/"]
+COPY ["uMini.Infrastructure/uMini.Infrastructure.csproj", "uMini.Infrastructure/"]
 RUN dotnet restore "uMini.Web/uMini.Web.csproj"
 COPY . .
 WORKDIR "/src/uMini.Web"
