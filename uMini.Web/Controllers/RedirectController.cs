@@ -19,14 +19,10 @@ public class RedirectController : Controller
 
         if (data is null)
         {
-            return RedirectToAction(nameof(ShortUrlNotFound));
+            TempData["error"] = $"Could not find a ShortUrl with the name {key}";
+            return RedirectToAction(nameof(HomeController.Index), "Home", new { area = "" });
         }
 
         return Redirect(data.Url);
-    }
-
-    public IActionResult ShortUrlNotFound(string key)
-    {
-        return View(key);
     }
 }
