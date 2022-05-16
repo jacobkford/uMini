@@ -1,8 +1,73 @@
-﻿@{
+﻿@model CreateUrlViewModel
+@{
     ViewData["Title"] = "Home Page";
+
+    var hasModelStateErrors = ViewData.ModelState.Any(x => x.Value is not null && x.Value.Errors is not null && x.Value.Errors.Any());
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container h-100 d-flex justify-content-center align-items-center">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <div class="text-white landing-title-content">
+                <h1 class="h3 display-3 font-weight-bold mb-2">Share Your Url's The Right Way</h1>
+                <hr class="hr-light mx-5" />
+                <p class="mb-5">uMini makes creating shorter Web Urls easy, and sharing them is even easier. Start sharing them today, and register to be able to manage your Urls whenever you need.</p>
+            </div>
+            <div class="container">
+                <form method="post" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="input-group input-group-lg mb-3">
+                        <span class="input-group-text bg-light" style="--mdb-bg-opacity: 0.5;">@Context.Items["HostUrl"]</span>
+                        <input
+                            type="text"
+                            asp-for="Key"
+                            class="form-control bg-white"
+                            style="--mdb-bg-opacity: 0.5;"
+                            id="miniUrlInput"
+                            aria-describedby="miniUrl"
+                            placeholder="MiniUrl"
+                        />
+
+                    </div>
+                    <div class="input-group input-group-lg mb-3">
+                        <input 
+                            type="text" 
+                            asp-for="Url"
+                            id="longUrlInput" 
+                            class="form-control bg-white" 
+                            style="--mdb-bg-opacity: 0.5;" 
+                            placeholder="https://google.com/"
+                        />
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-outline-info btn-lg">Create Mini Url</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+@if (hasModelStateErrors)
+{
+    <div class="modal fade" id="validationSummaryModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white">Unable to create custom Url</h5>
+                    <button type="button" class="btn-close btn-close-white" data-mdb-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center text-danger">
+                    @Html.ValidationSummary()
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/index.css" />
+}
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/home-index.js" asp-append-version="true"></script>  
+}

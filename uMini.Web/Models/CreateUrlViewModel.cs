@@ -1,6 +1,6 @@
-﻿namespace uMini.Web.Models.ShortUrlViewModels;
+﻿namespace uMini.Web.Models;
 
-public class CreateShortUrlViewModel
+public class CreateUrlViewModel
 {
     /// <summary>
     /// The value that will be used as a param to redirect to the specified URL.
@@ -18,6 +18,4 @@ public class CreateShortUrlViewModel
     [Required(ErrorMessage = "Url is required")]
     [MaxLength(1000, ErrorMessage = "Url can not be longer than 1000 characters")]
     public string Url { get; set; } = default!;
-
-    public string? CreatorId { get; set; }
 }
