@@ -1,28 +1,37 @@
-﻿@model CreateShortUrlViewModel
-
-<form method="post">
-    <div class="border p-3 mt-4">
-        <div class="row pb-2">
-            <h2>Create MiniUrl</h2>
-            <hr />
-        </div>
-        <div class="form-floating mb-3">       
-            <input asp-for="Key" class="form-control" placeholder="Example: MyMiniLink">
-            <label asp-for="Key" class="form-label">MiniUrl Name</label>
-            <span asp-validation-for="Key" class="text-danger"></span>
-        </div>
-        <div class="form-floating mb-3">
-            <input asp-for="Url" class="form-control" placeholder="Example: https://google.com/">
-            <label asp-for="Url" class="form-label">Url to Minimize</label>
-            <span asp-validation-for="Url" class="text-danger"></span>
-        </div>  
-    </div>
-    <a asp-area="User" asp-controller="Urls" asp-action="Index" class="btn btn-secondary">Go Back</a>     
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-
-@section Scripts {
-    @{
-        <partial name="_ValidationScriptsPartial" />
-    }
+﻿@model CreateUserUrlViewModel
+@{
+    ViewData["Title"] = "Create a Mini Url";
 }
+
+<div class="container h-100">
+    <div class="row align-items-center h-100 justify-content-center">
+        <div class="col-xl-6 col-md-8">
+            <!-- Create User Url Card -->
+            <div class="card mb-4 bg-white text-center">
+                <!-- Create User Url Card Title -->
+                <div class="card-header">
+                    <h1 class="card-title">@ViewData["Title"]</h1>
+                </div>
+                <!-- Create User Url Card Form -->
+                <div class="card-body">
+                    <form method="post" asp-area="User" asp-controller="Urls" asp-action="Create" class="px-5">
+                        <div asp-validation-summary="ModelOnly" class="text-danger text-start"></div>
+                        <!-- Key Input -->
+                        <div class="form-floating input-group mb-3">
+                            <span class="input-group-text">@Context.Items["HostUrl"]</span>
+                            <input asp-for="Key" type="text" class="form-control" placeholder="MiniUrl">
+                            <span asp-validation-for="Key" class="text-danger"></span>
+                        </div>
+                        <!-- Long Url Input -->
+                        <div class="form-floating">
+                            <input asp-for="Url" class="form-control mb-5" placeholder="https://google.com/">
+                            <span asp-validation-for="Url" class="text-danger"></span>
+                        </div>
+                        <a asp-area="User" asp-controller="Urls" asp-action="Index" class="btn btn-light">Go Back</a>     
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+﻿@using uMini.Web.ViewComponents
+@model ApplicationUserRoleChipsViewModel
+
+@foreach (var role in Model.Roles)
+{
+    <div class="chip chip-outline @(ApplicationUserRoleChips.ChipColor(role)) @Model.ChipSizeClass me-1 p-2">
+        @role
+        @if (Model.RemoveRoleModalButton 
+            && (role == ApplicationUserRole.Moderator
+            || (role == ApplicationUserRole.Admin && Model.ContextUser.IsInRole(ApplicationUserRole.SuperAdmin))))
+        {
+            <a data-mdb-toggle="modal" data-mdb-target="#removeRoleModal" data-role="@role">
+                <i class="close fas fa-times"></i>
+            </a>
+        }
+    </div>
+}

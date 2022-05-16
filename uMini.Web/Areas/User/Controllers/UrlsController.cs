@@ -7,12 +7,24 @@ public class UrlsController : Controller
     private readonly ILogger<UrlsController> _logger;
     private readonly IShortUrlRepository _shortUrlRepository;
     private readonly IMapper _mapper;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ToastrNotificationService _notificationHandler;
 
-    public UrlsController(ILogger<UrlsController> logger, IShortUrlRepository shortUrlRepository, IMapper mapper)
+    public UrlsController(
+        ILogger<UrlsController> logger,
+        IShortUrlRepository shortUrlRepository,
+        IMapper mapper,
+        IHttpContextAccessor httpContextAccessor,
+        UserManager<ApplicationUser> userManager,
+        ToastrNotificationService notificationHandler)
     {
         _logger = logger;
         _shortUrlRepository = shortUrlRepository;
         _mapper = mapper;
+        _httpContextAccessor = httpContextAccessor;
+        _userManager = userManager;
+        _notificationHandler = notificationHandler;
     }
 
     [HttpGet]
@@ -21,39 +33,32 @@ public class UrlsController : Controller
         ViewData["CurrentSort"] = sort;
         ViewData["ShortUrlSortParm"] = string.IsNullOrEmpty(sort) ? "shortUrl_desc" : "";
         ViewData["LongUrlSortParm"] = sort == "longUrl" ? "longUrl_desc" : "longUrl";
+        ViewData["DateSortParm"] = sort == "date" ? "date_desc" : "date";
 
         int pageSize = 10;
         int pageMaxSize = 50;
 
         if (size is not null)
-        {
             pageSize = size > pageMaxSize ? pageMaxSize : (int)size;
-        }
 
         var pageSizeList = new PageSizeSelectList();
 
         foreach (var item in pageSizeList.Where(x => x.Value == pageSize.ToString()))
-        {
             item.Selected = true;
-        }
 
         ViewData["PageSize"] = pageSize;
         ViewData["PageSizeList"] = pageSizeList;
 
         if (query != null)
-        {
             page = 1;
-        }
         else
-        {
             query = filter;
-        }
 
         ViewData["CurrentFilter"] = query;
 
         var userId = User.FindFirst(ClaimTypes.NameIdentifier);
         var urls = await _shortUrlRepository.FindAllByUserIdAsync(userId?.Value);
-        var data = _mapper.Map<IEnumerable<ShortUrl>, IEnumerable<ShortUrlViewModel>>(urls);
+        var data = _mapper.Map<IEnumerable<ShortUrl>, IEnumerable<UserUrlViewModel>>(urls);
 
         if (!string.IsNullOrEmpty(query))
         {
@@ -65,10 +70,12 @@ public class UrlsController : Controller
             "shortUrl_desc" => data.OrderByDescending(s => s.Key),
             "longUrl" => data.OrderBy(s => s.Url),
             "longUrl_desc" => data.OrderByDescending(s => s.Url),
+            "date" => data.OrderBy(s => s.CreatedDate),
+            "date_desc" => data.OrderByDescending(s => s.CreatedDate),
             _ => data.OrderBy(s => s.Key),
         };
 
-        return View(PaginatedList<ShortUrlViewModel>.Create(data, page ?? 1, pageSize));
+        return View(PaginatedList<UserUrlViewModel>.Create(data, page ?? 1, pageSize));
     }
 
     [HttpGet]
@@ -79,22 +86,21 @@ public class UrlsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Key,Url")] CreateShortUrlViewModel request)
+    public async Task<IActionResult> Create([Bind("Key,Url")] CreateUserUrlViewModel request)
     {
         var keyAlreadyExists = await _shortUrlRepository.FindAsync(request.Key);
 
         if (keyAlreadyExists is not null)
-        {
             ModelState.AddModelError("key", "A MiniUrl already exists with this name.");
-        }
 
         if (!request.Url.IsValidUrl())
-        {
             ModelState.AddModelError("url", "Invalid Url, make sure it starts with either http:// or https://");
-        }
 
         if (!ModelState.IsValid)
         {
+            foreach (var error in ModelState.Values.SelectMany(x => x.Errors))
+                _notificationHandler.Add(new ToastrNotification(error.ErrorMessage, ToastrNotificationType.Error));
+
             return View(request);
         }
 
@@ -104,18 +110,21 @@ public class UrlsController : Controller
             {
                 Key = request.Key,
                 Url = request.Url,
-                CreatorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                CreatorId = _userManager.GetUserId(User),
             };
 
             await _shortUrlRepository.Add(newShortUrl);
             await _shortUrlRepository.Save();
 
-            TempData["success"] = "Successfully created MiniUrl!";
+            _notificationHandler.Add(new ToastrNotification("Successfully created a MiniUrl!", ToastrNotificationType.Success));
         }
         catch (Exception ex)
         {
-            TempData["error"] = $"Unable to save changes. Try again, and if the problem persists see your system administrator.";
-            Console.WriteLine(ex);
+            _notificationHandler.Add(new ToastrNotification(
+                "Internal error, unable to save changes", "Try again, and if the problem persists see your system administrator",
+                ToastrNotificationType.Error));
+
+            _logger.Log(LogLevel.Error, ex.Message, ex.StackTrace);
         }
 
         return RedirectToAction(nameof(Index));
@@ -126,36 +135,36 @@ public class UrlsController : Controller
     {
         var miniUrl = await _shortUrlRepository.FindAsync(key);
 
-        if (miniUrl is null)
+        if (miniUrl is null || miniUrl.CreatorId != _userManager.GetUserId(User))
         {
-            TempData["error"] = "Internal error, couldn't find entry to edit";
+            _notificationHandler.Add(new ToastrNotification("Internal error, couldn\\'t find entry to edit", ToastrNotificationType.Error));
             return RedirectToAction(nameof(Index));
         }
 
-        var viewModel = new EditShortUrlViewModel { Key = miniUrl.Key, Url = miniUrl.Url };
+        var viewModel = new EditUserUrlViewModel { Key = miniUrl.Key, Url = miniUrl.Url };
 
         return View(viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(EditShortUrlViewModel request)
+    public async Task<IActionResult> Edit(EditUserUrlViewModel request)
     {
         if (!ModelState.IsValid)
         {
             return View(request);
         }
 
-        var shortUrl = await _shortUrlRepository.FindAsync(request.Key);
-        if (shortUrl is not null)
+        var miniUrl = await _shortUrlRepository.FindAsync(request.Key);
+        if (miniUrl is not null || miniUrl!.CreatorId == _userManager.GetUserId(User))
         {
-            shortUrl.Url = request.Url;
+            miniUrl.Url = request.Url;
             await _shortUrlRepository.Save();
-            TempData["success"] = "Successfully editted MiniUrl!";
+            _notificationHandler.Add(new ToastrNotification("Successfully editted MiniUrl!", ToastrNotificationType.Success));
         }
         else
         {
-            TempData["error"] = "Internal error, couldn't find entry to edit";
+            _notificationHandler.Add(new ToastrNotification("Internal error, couldn\\'t find entry to edit", ToastrNotificationType.Error));
         }
 
         return RedirectToAction(nameof(Index));
@@ -165,16 +174,16 @@ public class UrlsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(string key)
     {
-        var shortUrl = await _shortUrlRepository.FindAsync(key);
-        if (shortUrl is not null)
+        var miniUrl = await _shortUrlRepository.FindAsync(key);
+        if (miniUrl is not null || miniUrl!.CreatorId == _userManager.GetUserId(User))
         {
-            _shortUrlRepository.Delete(shortUrl);
+            _shortUrlRepository.Delete(miniUrl);
             await _shortUrlRepository.Save();
-            TempData["success"] = "Successfully deleted MiniUrl!";
+            _notificationHandler.Add(new ToastrNotification("Successfully deleted MiniUrl!", ToastrNotificationType.Success));
         }
         else
         {
-            TempData["error"] = "Internal error, couldn't find entry to delete";
+            _notificationHandler.Add(new ToastrNotification("Internal error, couldn\\'t find entry to delete", ToastrNotificationType.Error));
         }
 
         return RedirectToAction(nameof(Index));

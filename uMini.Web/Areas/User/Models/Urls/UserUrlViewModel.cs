@@ -1,8 +1,8 @@
-﻿namespace uMini.Web.Models.ShortUrlViewModels;
+﻿namespace uMini.Web.Areas.User.Models.Urls;
 
-public class ShortUrlViewModel
+public class UserUrlViewModel
 {
-    [Display(Name = "Custom Url Key")]
+    [Display(Name = "No.")]
     public string Key { get; set; } = default!;
 
     [Display(Name = "LongUrl")]
@@ -11,9 +11,11 @@ public class ShortUrlViewModel
     [Display(Name = "MiniUrl")]
     public string CustomUrl { get; init; } = default!;
 
-    [Display(Name = "Creator User Id")]
+    [Display(Name = "Owner Id")]
     public string? CreatorId { get; set; }
 
-    [Display(Name = "Created Date")]
+    [Display(Name = "Created")]
+    [DataType(DataType.DateTime)]
+    [DisplayFormat(DataFormatString = "{0:dd MMMM yyyy}")]
     public DateTime CreatedDate { get; set; }
 }

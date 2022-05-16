@@ -1,28 +1,37 @@
-﻿@model EditShortUrlViewModel
+﻿@model EditUserUrlViewModel
+@{
+    ViewData["Title"] = "Edit a Mini Url";
+}
 
-<form method="post">
-    <div class="border p-3 mt-4">
-        <div class="row pb-2">
-            <h2>Create MiniUrl</h2>
-            <hr />
-        </div>
-        <div class="form-floating mb-3">
-            <input id="keyInputDisplay" type="text" name="keyDisplay" class="form-control" value=@Model.Key disabled>
-            <input asp-for="Key" type="hidden" value=@Model.Key />
-            <label for="keyInputDisplay" class="form-label">MiniUrl Name</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input asp-for="Url" class="form-control" placeholder=@Model.Url>
-            <label asp-for="Url" class="form-label">Url to Minimize</label>
-            <span asp-validation-for="Url" class="text-danger"></span>
+<div class="container h-100">
+    <div class="row align-items-center h-100 justify-content-center">
+        <div class="col-xl-6 col-md-8">
+            <!-- Create User Url Card -->
+            <div class="card mb-4 bg-white text-center">
+                <!-- Create User Url Card Title -->
+                <div class="card-header">
+                    <h1 class="card-title">@ViewData["Title"]</h1>
+                </div>
+                <!-- Create User Url Card Form -->
+                <div class="card-body">
+                    <form method="post">
+                        <!-- Key Input -->
+                        <label for="keyInputDisplay" class="form-label">MiniUrl Name</label>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">@Context.Items["HostUrl"]</span>
+                            <input id="keyInputDisplay" type="text" name="keyDisplay" class="form-control" value=@Model.Key disabled>
+                            <input asp-for="Key" type="hidden" value=@Model.Key />
+                        </div>
+                        <!-- Url Input -->
+                        <label asp-for="Url" class="form-label">Url to Minimize</label>
+                        <input asp-for="Url" class="form-control" placeholder=@Model.Url>
+                        <span asp-validation-for="Url" class="text-danger"></span>
+                        <!-- Buttons -->
+                        <a asp-area="User" asp-controller="Urls" asp-action="Index" class="btn btn-light">Go Back</a>    
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-    <a asp-area="User" asp-controller="Urls" asp-action="Index" class="btn btn-secondary">Go Back</a>    
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-
-@section Scripts {
-    @{
-        <partial name="_ValidationScriptsPartial" />
-    }
-}
+</div>

@@ -1,105 +1,287 @@
-﻿@model PaginatedList<ShortUrlViewModel>
+﻿@model PaginatedList<UserUrlViewModel>
 @{
-    ViewData["Title"] = "Manage";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "My Urls";
 }
 
-<partial name="_Notification" />
-<div class="container p-5">
-    <div class="row pt-4">
-        <div class="col-12">
-            <h2 class="text-primary">My Mini Url's</h2>
+<!-- Header -->
+<div class="px-sm-5 py-4">
+    <div class="container">
+        <div class="row justify-content-between align-items-center">
+            <!-- Title -->
+            <div class="col">
+                <h1 class="mb-0 h3">@ViewData["Title"]</h1> 
+            </div>
+            <!-- Create Button -->
+            <div class="col d-flex justify-content-end m-auto">
+                <a 
+                    asp-area="User" 
+                    asp-controller="Urls" 
+                    asp-action="Create" 
+                    class="btn btn-primary"
+                >
+                    <span class="pe-1">
+                        <i class="fas fa-plus"></i> &nbsp; Create
+                    </span>
+                </a>
+            </div>
         </div>
-    </div>
-    <div class="row pt-4">
-        <div class="col-6 input-group-sm">
-            <a asp-area="User" asp-controller="Urls" asp-action="Create" class="btn btn-primary">
-                <i class="bi bi-plus-square"></i> &nbsp; New
-            </a>
-        </div>
-        <div class="col-6">
-            <form method="get" asp-area="User" asp-controller="Urls" asp-action="Index">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" name="query" value="@ViewData["CurrentFilter"]" />
-                    <button type="submit" value="Search" class="btn btn-secondary">Search</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <br />
-    <div class="table-responsive">
-        <table class="mx-auto table table-striped text-center">
-            <thead>
-                <tr>
-                    <th>
-                        <a asp-area="User" asp-controller="Urls" asp-action="Index" 
-                            asp-route-sort="@ViewData["ShortUrlSortParm"]" 
-                            asp-route-filter="@ViewData["CurrentFilter"]">
-                            MiniUrl
-                        </a>
-                    </th>
-                    <th>
-                        <a asp-area="User" asp-controller="Urls" asp-action="Index" 
-                            asp-route-sort="@ViewData["LongUrlSortParm"]" 
-                            asp-route-filter="@ViewData["CurrentFilter"]">
-                            LongUrl
-                        </a>
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach(var miniUrl in Model)
-                {
-                    <tr class="table-active">
-                        <td>
-                            @Html.DisplayFor(modelItem => miniUrl.CustomUrl)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => miniUrl.Url)
-                        </td>
-                        <td class="text-center">              
-                            <a asp-area="User" asp-controller="Urls" asp-action="Edit" asp-route-key="@miniUrl.Key" class="btn btn-secondary btn-sm">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <partial name="_DeletePartial" model="miniUrl" view-data="ViewData" />
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        @{
-            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-        }
-
-        <a asp-area="User" 
-            asp-controller="Urls"
-            asp-action="Index"
-            asp-route-sort="@ViewData["CurrentSort"]"
-            asp-route-page="@(Model.PageIndex - 1)"
-            asp-route-filter="@ViewData["CurrentFilter"]"
-            asp-route-size="@ViewData["PageSize"]"
-            class="btn btn-default @prevDisabled">
-            Previous
-        </a>
-        <a asp-area="User" 
-            asp-controller="Urls"
-            asp-action="Index"
-            asp-route-sort="@ViewData["CurrentSort"]"
-            asp-route-page="@(Model.PageIndex + 1)"
-            asp-route-filter="@ViewData["CurrentFilter"]"
-            asp-route-size="@ViewData["PageSize"]"
-            class="btn btn-default @nextDisabled">
-            Next
-        </a>
-        <form method="get" asp-area="User" asp-controller="Urls" asp-action="Index">
-            <select name="size" 
-                id="pageSize" 
-                class="form-control" 
-                asp-items="(List<SelectListItem>)@ViewData["PageSizeList"]" 
-                onchange="this.form.submit();">
-            </select>
-        </form>
     </div>
 </div>
+<!-- Content -->
+<div class="container-fluid px-sm-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Card -->
+            <div class="card mb-4">
+                <!-- Card Body -->
+                <div class="card-body border-bottom py-3">
+                    <div class="d-flex align-items-center">
+                        <!-- Page size -->
+                        <div class="text-muted">
+                            Show
+                            <div class="mx-2 d-inline-block">
+                                <form 
+                                    method="get" 
+                                    asp-area="User" 
+                                    asp-controller="Urls" 
+                                    asp-action="Index"
+                                >
+                                    <select 
+                                        name="size" 
+                                        id="pageSize" 
+                                        class="form-select form-select-sm" 
+                                        asp-items="(List<SelectListItem>?)@ViewData["PageSizeList"]" 
+                                        onchange="this.form.submit();"
+                                    >
+                                    </select>
+                                </form>
+                            </div>
+                            entries
+                        </div>
+                        <!-- Search box -->
+                        <div class="ms-auto text-muted">
+                            <form 
+                                method="get" 
+                                asp-area="User" 
+                                asp-controller="Urls" 
+                                asp-action="Index"
+                            >
+                                <div class="input-group">                  
+                                    <div class="form-outline flex-grow-1 flex-lg-grow-0">
+                                        <input id="search-input" type="search" value="@ViewData["CurrentFilter"]" class="form-control" />
+                                        <label class="form-label" for="search-input">Search</label>
+                                    </div>
+                                    <button type="submit" value="Search" class="btn btn-outline-dark">
+                                        <i class="fas fa-search"></i>
+                                    </button>   
+                                </div> 
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="mx-auto table text-nowrap mb-0 bg-white">
+                        <thead class="bg-light">
+                            <tr>
+                                <th scope="col">
+                                    <a
+                                        class="text-decoration-none text-reset"
+                                        asp-area="User" 
+                                        asp-controller="Urls" 
+                                        asp-action="Index" 
+                                        asp-route-sort="@ViewData["ShortUrlSortParm"]" 
+                                        asp-route-filter="@ViewData["CurrentFilter"]"
+                                    >
+                                        MiniUrl
+                                        @{
+                                            if (string.IsNullOrEmpty((string?)ViewData["CurrentSort"]))
+                                            {
+                                                <i class="fas fa-sort-up"></i>
+                                            }
+                                            else if ((string?)ViewData["CurrentSort"] == "shortUrl_desc")
+                                            {
+                                                <i class="fas fa-sort-down"></i>
+                                            }
+                                        }
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a 
+                                        class="text-decoration-none text-reset"
+                                        asp-area="User" 
+                                        asp-controller="Urls" 
+                                        asp-action="Index" 
+                                        asp-route-sort="@ViewData["LongUrlSortParm"]" 
+                                        asp-route-filter="@ViewData["CurrentFilter"]"
+                                    >
+                                        LongUrl
+                                        @{
+                                            if ((string?)ViewData["CurrentSort"] == "longUrl")
+                                            {
+                                                <i class="fas fa-sort-up"></i>
+                                            }
+                                            else if ((string?)ViewData["CurrentSort"] == "longUrl_desc")
+                                            {
+                                                <i class="fas fa-sort-down"></i>
+                                            }
+                                        }
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <a 
+                                        class="text-decoration-none text-reset"
+                                        asp-area="User" 
+                                        asp-controller="Urls" 
+                                        asp-action="Index" 
+                                        asp-route-sort="@ViewData["DateSortParm"]" 
+                                        asp-route-filter="@ViewData["CurrentFilter"]"
+                                    >
+                                        Created
+                                        @{
+                                            if ((string?)ViewData["CurrentSort"] == "date")
+                                            {
+                                                <i class="fas fa-sort-up"></i>
+                                            }
+                                            else if ((string?)ViewData["CurrentSort"] == "date_desc")
+                                            {
+                                                <i class="fas fa-sort-down"></i>
+                                            }
+                                        }
+                                    </a>
+                                </th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            @foreach(var miniUrl in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => miniUrl.CustomUrl)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => miniUrl.Url)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => miniUrl.CreatedDate)
+                                    </td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <a
+                                                class="d-flex align-items-center text-decoration-none text-muted"
+                                                role="button"
+                                                id="dropdownMenuButton"
+                                                data-mdb-toggle="dropdown"
+                                                aria-expanded="false"
+                                            > 
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </a>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                                <li>
+                                                    <a 
+                                                        class="dropdown-item" 
+                                                        asp-area="User" 
+                                                        asp-controller="Urls"
+                                                        asp-action="Edit" 
+                                                        asp-route-key="@miniUrl.Key"
+                                                    >
+                                                        <i class="fas fa-pen"></i> &nbsp; Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a 
+                                                        class="dropdown-item text-danger" 
+                                                        data-mdb-toggle="modal" 
+                                                        data-mdb-target="#deleteModal" 
+                                                        data-id="@miniUrl.Key"
+                                                    >
+                                                        <i class="fas fa-trash-alt"></i> &nbsp; Delete
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Card Footer -->
+                <div class="card-footer" style="border-top: none;">
+                    <div class="container">
+                        <div class="row align-items-center pt-2">
+                            <div class="col d-flex justify-content-end">
+                                @{
+                                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                                }
+                                <nav aria-label="...">
+                                    <ul class="pagination">
+                                        <li class="page-item @prevDisabled">
+                                            <a class="page-link"
+                                                asp-area="User" 
+                                                asp-controller="Urls"
+                                                asp-action="Index"
+                                                asp-route-sort="@ViewData["CurrentSort"]"
+                                                asp-route-page="@(Model.PageIndex - 1)"
+                                                asp-route-filter="@ViewData["CurrentFilter"]"
+                                                asp-route-size="@ViewData["PageSize"]"
+                                            >
+                                                Previous
+                                            </a>
+                                        </li>
+                                        @{
+                                            for (int pageNum = 0; pageNum < Model.TotalPages; pageNum++)
+                                            {
+                                                var isCurrentPage = (pageNum + 1) == Model.PageIndex;
+                                                var activePageClass = isCurrentPage ? "active" : "";
+
+                                                <li class="page-item @activePageClass">
+                                                    <a class="page-link"
+                                                        asp-area="User" 
+                                                        asp-controller="Urls"
+                                                        asp-action="Index"
+                                                        asp-route-sort="@ViewData["CurrentSort"]"
+                                                        asp-route-page="@(pageNum + 1)"
+                                                        asp-route-filter="@ViewData["CurrentFilter"]"
+                                                        asp-route-size="@ViewData["PageSize"]"
+                                                    >
+                                                        @(pageNum + 1) 
+                                                        @if (isCurrentPage)
+                                                        {
+                                                            <span class="visually-hidden">(current)</span>
+                                                        }
+                                                    </a>
+                                                </li>
+                                            }
+                                        }
+                                        <li class="page-item @nextDisabled">
+                                            <a class="page-link"
+                                                asp-area="User" 
+                                                asp-controller="Urls"
+                                                asp-action="Index"
+                                                asp-route-sort="@ViewData["CurrentSort"]"
+                                                asp-route-page="@(Model.PageIndex + 1)"
+                                                asp-route-filter="@ViewData["CurrentFilter"]"
+                                                asp-route-size="@ViewData["PageSize"]"
+                                            >
+                                                Next
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_DeleteModal" />
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/user-urls-index.js" asp-append-version="true"></script>  
+}

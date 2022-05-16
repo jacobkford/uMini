@@ -1,6 +1,6 @@
-﻿namespace uMini.Web.Models.ShortUrlViewModels;
+﻿namespace uMini.Web.Areas.User.Models.Urls;
 
-public class EditShortUrlViewModel
+public class EditUserUrlViewModel
 {
     /// <summary>
     /// The value that will be used as a param to redirect to the specified URL.
