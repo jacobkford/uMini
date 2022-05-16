@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
-using System.Text;
+﻿using System.Net.Mail;
+
+namespace uMini.Web.Areas.Identity.Controllers;
 
 [Authorize]
 [Area("Identity")]
@@ -29,7 +30,7 @@ public class AccountController : Controller
     // GET: /Account/Login
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Login(string returnUrl = null)
+    public IActionResult Login(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
         return View();
@@ -40,23 +41,30 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
         if (ModelState.IsValid)
         {
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var username = model.Email;
+            if (IsValidEmail(model.Email))
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user is not null)
+                    username = user.UserName;
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(username, model.Password, model.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
                 _logger.LogInformation(1, "User logged in.");
-                return RedirectToLocal(returnUrl);
+                return RedirectToHome();
             }
             if (result.IsLockedOut)
             {
                 _logger.LogWarning(2, "User account locked out.");
-                return View("Lockout");
+                TempData["error"] = "This account has been locked out, please try again later.";
+                return RedirectToHome();
             }
             else
             {
@@ -73,7 +81,7 @@ public class AccountController : Controller
     // GET: /Account/Register
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Register(string returnUrl = null)
+    public IActionResult Register(string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
         return View();
@@ -84,23 +92,24 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+    public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
-        if (ModelState.IsValid)
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
+        var result = await _userManager.CreateAsync(user, model.Password);
+        if (result.Succeeded)
         {
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                _logger.LogInformation(3, "User created a new account with password.");
-                return LocalRedirect(returnUrl);
-            }
-            AddErrors(result);
+            await _userManager.AddToRoleAsync(user, ApplicationUserRole.Member.ToString());
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            _logger.LogInformation(3, "User created a new account with password.");
+            return RedirectToHome();
         }
 
-        // If we got this far, something failed, redisplay form
+        AddErrors(result);
         return View(model);
     }
 
@@ -113,20 +122,11 @@ public class AccountController : Controller
     // POST: /Account/Logout
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Logout(string returnUrl = null)
+    public async Task<IActionResult> Logout(string? returnUrl = null)
     {
         await _signInManager.SignOutAsync();
         _logger.LogInformation(4, "User logged out.");
-        if (returnUrl != null)
-        {
-            return LocalRedirect(returnUrl);
-        }
-        else
-        {
-            // This needs to be a redirect so that the browser performs a new
-            // request and the identity for the user gets updated.
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
+        return RedirectToHome();
     }
 
     //
@@ -134,7 +134,7 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public IActionResult ExternalLogin(string provider, string returnUrl = null)
+    public IActionResult ExternalLogin(string provider, string? returnUrl = null)
     {
         // Request a redirect to the external login provider.
         var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
@@ -146,28 +146,26 @@ public class AccountController : Controller
     // GET: /Account/ExternalLoginCallback
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+    public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string remoteError = null)
     {
-        if (remoteError != null)
+        if (remoteError is not null)
         {
             ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
             return View(nameof(Login));
         }
-        var info = await _signInManager.GetExternalLoginInfoAsync();
-        if (info == null)
-        {
-            return RedirectToAction(nameof(Login));
-        }
 
+        var info = await _signInManager.GetExternalLoginInfoAsync();
+        if (info is null)
+            return RedirectToAction(nameof(Login));
+        
         // Sign in the user with this external login provider if the user already has a login.
         var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
         if (result.Succeeded)
         {
             // Update any authentication tokens if login succeeded
             await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
-
             _logger.LogInformation(5, "User logged in with {Name} provider.", info.LoginProvider);
-            return RedirectToLocal(returnUrl);
+            return RedirectToHome();
         }
         if (result.IsLockedOut)
         {
@@ -188,16 +186,15 @@ public class AccountController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string returnUrl = null)
+    public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginConfirmationViewModel model, string? returnUrl = null)
     {
         if (ModelState.IsValid)
         {
             // Get the information about the user from the external login provider
             var info = await _signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
-            {
+            if (info is null)
                 return View("ExternalLoginFailure");
-            }
+            
             var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
             var result = await _userManager.CreateAsync(user);
             if (result.Succeeded)
@@ -210,8 +207,7 @@ public class AccountController : Controller
 
                     // Update any authentication tokens as well
                     await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
-
-                    return RedirectToLocal(returnUrl);
+                    return RedirectToHome();
                 }
             }
             AddErrors(result);
@@ -226,16 +222,13 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> ConfirmEmail(string userId, string code)
     {
-        if (userId == null || code == null)
-        {
+        if (userId is null || code is null)
             return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
+        
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
-        {
+        if (user is null)
             return NotFound($"Unable to load user with ID '{userId}'.");
-        }
-
+        
         code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
         var result = await _userManager.ConfirmEmailAsync(user, code);
         return View(result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.");
@@ -243,31 +236,18 @@ public class AccountController : Controller
 
     public async Task<IActionResult> ConfirmEmailChange(string userId, string email, string code)
     {
-        if (userId == null || email == null || code == null)
-        {
+        if (userId is null || email is null || code is null)
             return RedirectToPage("/Index");
-        }
-
+        
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
-        {
+        if (user is null)
             return NotFound($"Unable to load user with ID '{userId}'.");
-        }
-
+        
         code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
         var result = await _userManager.ChangeEmailAsync(user, email, code);
         if (!result.Succeeded)
         {
             TempData["StatusMessage"] = "Error changing email.";
-            return View();
-        }
-
-        // In our UI email and user name are one and the same, so when we update the email
-        // we need to update the user name.
-        var setUserNameResult = await _userManager.SetUserNameAsync(user, email);
-        if (!setUserNameResult.Succeeded)
-        {
-            TempData["StatusMessage"] = "Error changing user name.";
             return View();
         }
 
@@ -295,11 +275,9 @@ public class AccountController : Controller
         if (ModelState.IsValid)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
-            {
-                // Don't reveal that the user does not exist or is not confirmed
+            if (user is null || !(await _userManager.IsEmailConfirmedAsync(user)))
                 return View("ForgotPasswordConfirmation");
-            }
+            
         }
         // If we got this far, something failed, redisplay form
         return View(model);
@@ -318,7 +296,7 @@ public class AccountController : Controller
     // GET: /Account/ResetPassword
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult ResetPassword(string code = null)
+    public IActionResult ResetPassword(string? code = null)
     {
         return code == null ? View("Error") : View();
     }
@@ -331,20 +309,16 @@ public class AccountController : Controller
     public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
     {
         if (!ModelState.IsValid)
-        {
             return View(model);
-        }
+        
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
-        {
-            // Don't reveal that the user does not exist
             return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
-        }
+        
         var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
         if (result.Succeeded)
-        {
             return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
-        }
+        
         AddErrors(result);
         return View();
     }
@@ -363,9 +337,8 @@ public class AccountController : Controller
     private void AddErrors(IdentityResult result)
     {
         foreach (var error in result.Errors)
-        {
             ModelState.AddModelError(string.Empty, error.Description);
-        }
+        
     }
 
     private Task<ApplicationUser> GetCurrentUserAsync()
@@ -373,15 +346,29 @@ public class AccountController : Controller
         return _userManager.GetUserAsync(HttpContext.User);
     }
 
-    private IActionResult RedirectToLocal(string returnUrl)
+    private IActionResult RedirectToLocal(string? returnUrl = null)
     {
-        if (Url.IsLocalUrl(returnUrl))
-        {
+        if (returnUrl is not null && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
-        }
         else
-        {
             return RedirectToAction(nameof(HomeController.Index), "Home");
+    }
+
+    private IActionResult RedirectToHome()
+    {
+        return RedirectToAction(nameof(HomeController.Index), "Home", new { area = "" });
+    }
+
+    private bool IsValidEmail(string emailaddress)
+    {
+        try
+        {
+            MailAddress m = new MailAddress(emailaddress);
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
         }
     }
 

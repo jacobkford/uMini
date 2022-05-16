@@ -9,19 +9,22 @@ public class ManageController : Controller
     private readonly IEmailSender _emailSender;
     private readonly ISmsSender _smsSender;
     private readonly ILogger _logger;
+    private readonly ToastrNotificationService _notificationHandler;
 
     public ManageController(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     IEmailSender emailSender,
     ISmsSender smsSender,
-    ILoggerFactory loggerFactory)
+    ILoggerFactory loggerFactory,
+    ToastrNotificationService notificationHandler)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _emailSender = emailSender;
         _smsSender = smsSender;
         _logger = loggerFactory.CreateLogger<ManageController>();
+        _notificationHandler = notificationHandler;
     }
 
     //
@@ -29,13 +32,26 @@ public class ManageController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(ManageMessageId? message = null)
     {
-        ViewData["StatusMessage"] =
-            message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-            : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-            : message == ManageMessageId.Error ? "An error has occurred."
-            : message == ManageMessageId.AddPhoneSuccess ? "Your phone number was added."
-            : message == ManageMessageId.RemovePhoneSuccess ? "Your phone number was removed."
-            : "";
+        switch (message)
+        {
+            case ManageMessageId.ChangePasswordSuccess:
+                _notificationHandler.Add(new ToastrNotification("Your password has been changed.", ToastrNotificationType.Success));
+                break;
+            case ManageMessageId.AddPhoneSuccess:
+                _notificationHandler.Add(new ToastrNotification("Your phone number was added.", ToastrNotificationType.Success));
+                break;
+            case ManageMessageId.SetPasswordSuccess:
+                _notificationHandler.Add(new ToastrNotification("Your password has been set.", ToastrNotificationType.Success));
+                break;
+            case ManageMessageId.RemovePhoneSuccess:
+                _notificationHandler.Add(new ToastrNotification("Your phone number was removed.", ToastrNotificationType.Success));
+                break;
+            case ManageMessageId.Error:
+                _notificationHandler.Add(new ToastrNotification("An error has occurred.", ToastrNotificationType.Error));
+                break;
+            default:
+                break;
+        }
 
         var user = await GetCurrentUserAsync();
         var model = new IndexViewModel
@@ -276,20 +292,33 @@ public class ManageController : Controller
     [HttpGet]
     public async Task<IActionResult> ManageLogins(ManageMessageId? message = null)
     {
-        ViewData["StatusMessage"] =
-            message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
-            : message == ManageMessageId.AddLoginSuccess ? "The external login was added."
-            : message == ManageMessageId.Error ? "An error has occurred."
-            : "";
+        switch (message)
+        {
+            case ManageMessageId.RemoveLoginSuccess:
+                _notificationHandler.Add(new ToastrNotification("The external login was removed.", ToastrNotificationType.Success));
+                break;
+            case ManageMessageId.AddLoginSuccess:
+                _notificationHandler.Add(new ToastrNotification("The external login was added.", ToastrNotificationType.Success));
+                break;
+            case ManageMessageId.Error:
+                _notificationHandler.Add(new ToastrNotification("An error has occurred.", ToastrNotificationType.Error));
+                break;
+            default:
+                break;
+        }
+
         var user = await GetCurrentUserAsync();
         if (user == null)
         {
             return View("Error");
         }
+
         var userLogins = await _userManager.GetLoginsAsync(user);
         var schemes = await _signInManager.GetExternalAuthenticationSchemesAsync();
         var otherLogins = schemes.Where(auth => userLogins.All(ul => auth.Name != ul.LoginProvider)).ToList();
+        
         ViewData["ShowRemoveButton"] = user.PasswordHash != null || userLogins.Count > 1;
+        
         return View(new ManageLoginsViewModel
         {
             CurrentLogins = userLogins,

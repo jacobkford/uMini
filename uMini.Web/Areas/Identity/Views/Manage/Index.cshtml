@@ -21,31 +21,6 @@
                 <text>[&nbsp;&nbsp;<a asp-controller="Manage" asp-action="SetPassword">Create</a>&nbsp;&nbsp;]</text>
             }
         </dd>
-        <dt>External Logins:</dt>
-        <dd>
-            @Model.Logins.Count [&nbsp;&nbsp;<a asp-controller="Manage" asp-action="ManageLogins">Manage</a>&nbsp;&nbsp;]
-        </dd>
-        <dt>Phone Number:</dt>
-        <dd>
-            <p>
-                Phone Numbers can used as a second factor of verification in two-factor authentication.
-                See <a href="http://go.microsoft.com/fwlink/?LinkID=532713">this article</a>
-                for details on setting up this ASP.NET application to support two-factor authentication using SMS.
-            </p>
-            @(Model.PhoneNumber ?? "None")
-                @if (Model.PhoneNumber != null)
-                {
-                    <br />
-                    <text>[&nbsp;&nbsp;<a asp-controller="Manage" asp-action="AddPhoneNumber">Change</a>&nbsp;&nbsp;]</text>
-                    <form asp-controller="Manage" asp-action="RemovePhoneNumber" method="post" role="form">
-                        [<button type="submit" class="btn-link">Remove</button>]
-                    </form>
-                }
-                else
-                {
-                    <text>[&nbsp;&nbsp;<a asp-controller="Manage" asp-action="AddPhoneNumber">Add</a>&nbsp;&nbsp;]</text>
-                }
-        </dd>
         <dt>Authentication App:</dt>
         <dd>
             @if (Model.AuthenticatorKey == null)
@@ -64,7 +39,3 @@
         </dd>
     </dl>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

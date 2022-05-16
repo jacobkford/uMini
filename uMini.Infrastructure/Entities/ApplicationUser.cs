@@ -2,4 +2,6 @@
 
 public class ApplicationUser : IdentityUser
 {
+    public string? LockoutReason { get; set; }
+    public string? LockedOutBy { get; set; }
 }

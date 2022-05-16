@@ -1,4 +1,8 @@
-﻿namespace uMini.Infrastructure;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace uMini.Infrastructure;
 
 public static class ServiceRegistration
 {
@@ -15,14 +19,26 @@ public static class ServiceRegistration
 
         services.AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationIdentityDbContext>()
+            .AddUserManager<UserManager<ApplicationUser>>()
+            .AddRoleManager<RoleManager<IdentityRole>>()
             .AddSignInManager()
+            .AddEntityFrameworkStores<ApplicationIdentityDbContext>()
             .AddDefaultTokenProviders();
 
         services.Configure<IdentityOptions>(options =>
         {
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
+
+            options.Lockout.AllowedForNewUsers = true;
+
             options.SignIn.RequireConfirmedAccount = false;
             options.SignIn.RequireConfirmedPhoneNumber = false;
+
+            options.User.RequireUniqueEmail = true;
+            options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
         });
 
         services.AddAuthentication(o =>
@@ -30,7 +46,18 @@ public static class ServiceRegistration
             o.DefaultScheme = IdentityConstants.ApplicationScheme;
             o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
         })
-        .AddIdentityCookies(o => { });
+        .AddIdentityCookies();
+
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.ExpireTimeSpan = TimeSpan.FromDays(1);
+
+            options.LoginPath = "/i/account/login";
+            options.AccessDeniedPath = "/i/account/accessdenied";
+            options.LogoutPath = "/i/account/logout";
+
+            options.SlidingExpiration = true;
+        });
 
         services.AddScoped<IShortUrlRepository, ShortUrlRepository>();
 

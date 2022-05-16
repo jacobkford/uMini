@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using uMini.Infrastructure.Identity;
 
@@ -11,9 +12,10 @@ using uMini.Infrastructure.Identity;
 namespace uMini.Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationIdentityDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220504022822_AddedExtraLockoutDetailsToUser")]
+    partial class AddedExtraLockoutDetailsToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
