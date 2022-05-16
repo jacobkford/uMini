@@ -1,0 +1,13 @@
+﻿@model UserViewModel
+
+<h5 class="card-title">
+    @Model.UserName
+    @if (Model.IsLockedOut)
+    {
+        <span class="badge bg-danger">Locked-Out</span>
+    }
+</h5>
+<h6 class="card-subtitle mb-1 text-muted">@Model.Email</h6>
+<div class="d-flex flex-wrap">
+    @await Component.InvokeAsync("ApplicationUserRoleChips", new { userId = Model.Id })
+</div>

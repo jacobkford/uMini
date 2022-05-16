@@ -1,0 +1,41 @@
+﻿@model string
+
+<div 
+    class="modal fade" 
+    id="removeRoleModal" 
+    tabindex="-1" 
+    role="dialog" 
+    aria-labelledby="deleteModalLabel" 
+    aria-hidden="true"
+>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Please Confirm</h5>
+                <button 
+                    type="button" 
+                    class="btn-close" 
+                    data-mdb-dismiss="modal" 
+                    aria-label="close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Are you sure you want to remove a role from this user?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form method="post" asp-area="Admin" asp-controller="Users" asp-action="RemoveRole">
+                    <input name="userId" value="@Model" type="hidden" />
+                    <input name="role" type="hidden" />
+                    <button 
+                        type="button" 
+                        class="btn btn-default" 
+                        data-mdb-dismiss="modal"
+                    >Close</button>
+                    <button type="submit" value="Submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

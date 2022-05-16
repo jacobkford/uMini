@@ -1,0 +1,76 @@
+﻿@model ChangeUsernameViewModel
+@{
+    ViewData["Title"] = "Change Username";
+}
+
+<!-- Header -->
+<div class="px-sm-5 py-4">
+    <div class="container">
+        <div class="row justify-content-between align-items-center">
+            <!-- Title -->
+            <div class="col">
+                <h1 class="mb-0 h3">@ViewData["Title"]</h1> 
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Content -->
+<div class="container-fluid px-sm-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Card -->
+            <div class="card mb-4 bg-white">
+                <form method="post">
+                    <!-- Card Body -->
+                    <div class="card-body px-4">
+                        @await Component.InvokeAsync("AdminDashboardUserCardHeader", Model.UserId)
+                        <hr />
+                        <div asp-validation-summary="All" class="text-danger text-center"></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <!-- Old Username display -->          
+                                <div class="form-outline">    
+                                    <input 
+                                        class="form-control"
+                                        type="text" 
+                                        asp-for="OldUsername"
+                                        value=@Model.OldUsername 
+                                        readonly
+                                    >
+                                    <label asp-for="OldUsername" class="form-label">Old Username</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                 <!-- New Username Input -->
+                                <div class="form-outline">
+                                    <input 
+                                        class="form-control"
+                                        type="text"   
+                                        asp-for="NewUsername" 
+                                    >  
+                                    <label asp-for="NewUsername" class="form-label">New Username</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- User Hidden Inputs -->
+                        <input asp-for="UserId" type="hidden" value=@Model.UserId />
+                    </div>
+                    <div class="card-footer bg-white" style="border-top: none;">
+                        <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="btn btn-light">
+                            Go Back
+                        </a>    
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .validation-summary-errors ul { 
+            list-style-type: none;
+        }
+    </style> 
+}
