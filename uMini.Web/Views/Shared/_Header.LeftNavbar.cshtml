@@ -1,0 +1,81 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+<ul class="navbar-nav flex-grow-1">
+    <li class="nav-item">      
+        <a class="nav-link" 
+            asp-area="" 
+            asp-controller="Home" 
+            asp-action="Index"
+        >
+            <span class="nav-link">
+                <i class="fas fa-home d-none d-lg-inline-block"></i>
+                &nbsp;Home
+            </span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" 
+            asp-area="User" 
+            asp-controller="Urls" 
+            asp-action="Index"
+        >
+            <span class="nav-link">
+                <i class="fas fa-link d-none d-lg-inline-block"></i>
+                &nbsp;Urls
+            </span>
+        </a>
+    </li>
+    @{
+        if (SignInManager.IsSignedIn(User) && User.IsInRole(ApplicationUserRole.Admin))
+        {
+            <li class="nav-item">
+                <div class="dropdown">
+                    <a class="nav-link" 
+                        id="adminDropDownMenu"
+                        data-mdb-toggle="dropdown"
+                        role="button"
+                        aria-expanded="false"
+                    >
+                        <span class="nav-link">
+                            <i class="fas fa-tools d-none d-lg-inline-block"></i>
+                            &nbsp;Admin
+                        </span>
+                    </a>
+                    <ul 
+                        class="dropdown-menu" 
+                        aria-labelledby="userDropDownMenu"
+                    >  
+                        <li>
+                            <a class="dropdown-item" 
+                                asp-area="Admin" 
+                                asp-controller="Users" 
+                                asp-action="Index"
+                                title="Users" 
+                                role="button"
+                            >
+                                <span class="nav-link">
+                                    <i class="fas fa-users d-none d-lg-inline-block"></i>
+                                    &nbsp;Manage Users
+                                </span>
+                            </a>                   
+                        </li>
+                        <li>
+                            <a class="dropdown-item" 
+                                href="#"
+                                title="Urls" 
+                                role="button"
+                            >
+                                <span class="nav-link">
+                                    <i class="fas fa-link d-none d-lg-inline-block"></i>
+                                    &nbsp;Manage Urls&nbsp;<span class="badge badge-info">Coming Soon</span>
+                                </span>
+                            </a>                   
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        }
+    }
+</ul>
